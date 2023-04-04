@@ -40,13 +40,24 @@ ADMIN_NAME = 'admin'
 @pytest.fixture
 def admin():
     # TODO нужно дополнить фикстуру что бы она возвращала вновь созданного пользователя в статусе admin
-    ...
+    user = User.objects.create_user(username=ADMIN_NAME, is_staff=True)
+    return user
 
 
 @pytest.fixture
 def admin_client(admin, anon_client):
     anon_client.force_authenticate(admin)
     return anon_client
+    # Фикстура работает. Но здесь изменяется сущность anon_client, а не создаётся новая
+    # При одновременном использовании фикстур "anon_client" и "admin_client"
+    # возможно некорректное поведение, т.к. anon_client и admin_client - это один и тот же объект
+
+
+@pytest.fixture
+def admin_client_fixed(admin):
+    admin_client = APIClient()
+    admin_client.force_authenticate(admin)
+    return admin_client
 
 
 @pytest.fixture
